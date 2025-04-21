@@ -15,7 +15,7 @@ from PIL import Image, ImageFont
 class Application:
     def __init__(self, host, port):
         self._display = ssd1306(i2c(port=1, address=0x3c), width=128, height=64, rotate=0)
-        self._font_size = 15
+        self._font_size = 16
         self._font_path = str(Path(__file__).resolve().parent.joinpath('fonts', 'ProggyCleanNerdFontMono-Regular.ttf'))
         self._font = ImageFont.truetype(self._font_path, self._font_size)
         self._connection = None
@@ -35,13 +35,13 @@ class Application:
     def render(self):
         current_time = time.strftime('%H:%M:%S')
         rows = [
-            f'\U0000EB34 APRS Digi',
+            f'\U0000EB34 KR4BVP-10',
             f'\U0000F017 {current_time}',
         ]
 
         if self._connected_to_kiss:
             rows.append(f'\U000F00FA: {self._received_count}')
-            rows.append(f'\U0000F2F5 {self._last_rx_from} {self._last_rx_at}')
+            # rows.append(f'\U0000F2F5 {self._last_rx_from} {self._last_rx_at}')
         else:
             rows.append(f'{self._connection_status}')
 
