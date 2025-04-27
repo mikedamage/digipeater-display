@@ -6,6 +6,7 @@ import kiss
 import signal
 import sys
 import queue
+import logging
 from pathlib import Path
 from luma.core.interface.serial import i2c
 from luma.oled.device import ssd1306
@@ -14,6 +15,7 @@ from PIL import Image, ImageFont
 
 class Application:
     def __init__(self, host, port):
+        self._logger = self._setupLogger()
         self._display = ssd1306(i2c(port=1, address=0x3c), width=128, height=64, rotate=0)
         self._font_size = 16
         self._font_path = str(Path(__file__).resolve().parent.joinpath('fonts', 'ProggyCleanNerdFontMono-Regular.ttf'))
@@ -30,6 +32,7 @@ class Application:
 
         # Connect to KISS server to receive packets
         self._init_display()
+        self._logger.info('Connecting to KISS TNC')
         self._start_receiving(host, port)
 
     def render(self):
@@ -57,18 +60,28 @@ class Application:
     def cleanup(self):
         self._stop_receiving()
 
+    def _setupLogger(self):
+        logger = logging.getLogger('aprs_display')
+        logger.setLevel(logging.INFO)
+        formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+        handler = logging.StreamHandler(sys.stdout)
+        handler.setLevel(logging.INFO)
+        handler.setFormatter(formatter)
+        logger.addHandler(handler)
+        return logger
+
     def _init_display(self):
         self._display.contrast(1)
 
     def _start_receiving(self, host, port):
         def receive_callback(kiss_port, data):
-            print('received packet')
+            self._logger.info('received packet')
             self._received_count += 1
+            self._last_rx_at = time.strftime('%H:%M:%S')
             extracted_data = self._extract_frame(data)
             if not extracted_data:
                 return
             frame = ax25.Frame.unpack(extracted_data)
-            self._last_rx_at = time.strftime('%H:%M:%S')
             self._last_rx_from = str(frame.src)
         try:
             self._connection = kiss.Connection(receive_callback)
