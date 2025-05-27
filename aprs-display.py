@@ -65,7 +65,6 @@ class Application:
         while True:
             current_time = time.strftime('%H:%M:%S')
             rows = [
-                f'\U0000EB34 KR4BVP-10',
                 f'\U0000F017 {current_time}',
             ]
 
@@ -95,15 +94,23 @@ class Application:
         while True:
             async for frame in self._connection.read():
                 self._logger.info("Packet from %s - %s", frame.source, frame.info.raw)
+                self._logger.debug("path: %s", pformat(frame.path))
+
+                if frame.source == "X*":
+                    return
+
                 self._received_count += 1
-                self._last_rx_at = time.strftime("%H:%M:%S")
+                self._last_rx_at = time.strftime("%H:%M")
                 self._last_rx_from = frame.source
+
+
 
 async def main():
     app = Application("localhost", 8001)
     loop = asyncio.get_running_loop()
-    loop.create_task(app.render())
-    loop.create_task(app.receive())
+    tasks = set()
+    tasks.add(loop.create_task(app.render()))
+    tasks.add(loop.create_task(app.receive()))
     loop.run_forever()
 
 if __name__ == "__main__":
