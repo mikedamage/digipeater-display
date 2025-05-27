@@ -94,7 +94,7 @@ class Application:
 
         while True:
             async for frame in self._connection.read():
-                self._logger.info("Packet received: %s", pformat(attrs.asdict(frame)))
+                self._logger.info("Packet from %s - %s", frame.source, frame.info.raw)
                 self._received_count += 1
                 self._last_rx_at = time.strftime("%H:%M:%S")
                 self._last_rx_from = frame.source
