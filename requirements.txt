@@ -1,4 +1,4 @@
-aprslib==0.7.2
+aprs3==8.0.0.post1
 attrs==25.3.0
 ax253==0.1.5.post1
 bitarray==3.3.1
@@ -9,8 +9,6 @@ luma.core==2.4.2
 luma.oled==3.14.0
 pillow==11.1.0
 pyftdi==0.56.0
-pyham_ax25==1.0.2
-pyham_kiss==1.0.0
 pyserial==3.5
 pyserial-asyncio==0.6
 pyusb==1.3.1
